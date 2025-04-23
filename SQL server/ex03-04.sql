@@ -45,6 +45,7 @@ go
 -- 2
 select*from DimProduct
 select BrandName,
+count(*) as 'qtd produto',
 case
 	when count(productname) > 500 then 'Categoria A'
 	when count(productname) >= 100 then 'Categoria B'
@@ -95,8 +96,8 @@ from dimcustomer
 go
 
 -- 6
-select StoreKey, Storename, 
-datediff(day, opendate, getdate()) as 'Dias em atividade'
+select StoreKey, Storename, closedate,
+datediff(day, opendate, CloseDate) as 'Dias em atividade'
 from dimstore
 go
 
