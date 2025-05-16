@@ -137,7 +137,9 @@ CREATE TABLE Notas (
 	ra_aluno INT NOT NULL,
 	cod_disciplina INT NOT NULL,
 	nota INT,
-	PRIMARY KEY (cod_notas)
+	PRIMARY KEY (cod_notas),
+	FOREIGN KEY (ra_aluno) REFERENCES Alunos(ra_aluno),
+	FOREIGN KEY (cod_disciplina) REFERENCES Disciplinas(cod_disciplina)
 )
 go
 
@@ -313,3 +315,10 @@ select*from Cursos
 select*from Departamentos
 select*from Historico
 select*from Professor_Disciplina
+go
+
+select Alunos.ra_aluno, Disciplinas.cod_disciplina, Notas.nota 
+from Notas
+JOIN Alunos ON Notas.ra_aluno=Alunos.ra_aluno
+JOIN Disciplinas ON Notas.cod_disciplina=Disciplinas.cod_disciplina
+go
