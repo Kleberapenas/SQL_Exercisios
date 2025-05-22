@@ -26,9 +26,14 @@ create table Alunos (
 	cod_telefone INT,
 	cod_email INT,
 	nome_aluno VARCHAR(255),
-	FOREIGN KEY(Cod_endereco) REFERENCES Endereco(Cod_endereco)
+	sobrenome_aluno VARCHAR(255),
+	cod_curso INT,
+	FOREIGN KEY(Cod_endereco) REFERENCES Endereco(Cod_endereco),
+	FOREIGN KEY(cod_curso) REFERENCES Cursos(cod_curso)
 )
 go
+
+select*from Alunos
 
 create table Professor (
 	cod_professor INT PRIMARY KEY,
@@ -317,8 +322,168 @@ select*from Historico
 select*from Professor_Disciplina
 go
 
+-- ex1
 select Alunos.ra_aluno, Disciplinas.cod_disciplina, Notas.nota 
 from Notas
 JOIN Alunos ON Notas.ra_aluno=Alunos.ra_aluno
 JOIN Disciplinas ON Notas.cod_disciplina=Disciplinas.cod_disciplina
 go
+
+--2) Professores que ministram determinada disciplina.
+
+SELECT
+    p.cod_professor,
+    p.nome_professor,
+    p.sobrenome_professor,
+    d.nome_disciplina
+FROM Professor_Disciplina pd
+JOIN Professor p ON pd.cod_professor = p.cod_professor
+JOIN Disciplinas d ON pd.cod_disciplina = d.cod_disciplina
+WHERE d.cod_disciplina = 1;
+
+--3) Alunos matriculados em uma turma específica.
+
+SELECT
+    a.ra_aluno,
+    a.nome_aluno,
+    t.cod_turma,
+    t.ano,
+    t.semestre,
+m.status_matricula,
+m.data_matricula
+FROM Matricula m
+JOIN Alunos a ON m.ra_aluno = a.ra_aluno
+JOIN Turma t ON m.cod_turma = t.cod_turma
+WHERE t.cod_turma = 2;
+
+--4) Disciplinas obrigatórias de um curso.
+
+SELECT
+    c.cod_curso,
+    c.nome_curso,
+    d.cod_disciplina,
+    d.nome_disciplina,
+    cd.tipo_disciplina
+FROM Curso_Disciplina cd
+JOIN Cursos c ON cd.cod_curso = c.cod_curso
+JOIN Disciplinas d ON cd.cod_disciplina = d.cod_disciplina
+WHERE c.nome_curso = 'Engenharia de Computação'
+  AND cd.tipo_disciplina = 'Obrigatória';
+
+--5) Endereço completo de um aluno.
+
+SELECT
+    a.ra_aluno,
+    a.nome_aluno,
+    e.rua,
+    e.numero,
+    e.complemento,
+    e.bairro,
+    e.cidade,
+    e.estado,
+    e.cep
+FROM Alunos a
+JOIN Endereco e ON a.cod_endereco = e.cod_endereco
+WHERE a.ra_aluno = 1005;
+
+--6) Disciplinas que possuem pré-requisitos.
+
+SELECT
+d.cod_disciplina,
+d.nome_disciplina,
+pr.cod_pre_requisito,
+dp.nome_disciplina as nome_pre_requisito
+FROM Disciplina_PreRequisito pr
+JOIN Disciplinas d ON pr.cod_disciplina = d.cod_disciplina
+JOIN Disciplinas dp ON pr.cod_pre_requisito = dp.cod_disciplina
+ORDER BY d.cod_disciplina;
+
+
+--7) Alunos e seus respectivos cursos
+
+SELECT
+    a.ra_aluno,
+    a.nome_aluno,
+    c.cod_curso,
+    c.nome_curso,
+    c.tipo,
+    c.turno
+FROM Alunos a
+JOIN Cursos c ON a.cod_curso = c.cod_curso
+ORDER BY a.ra_aluno;
+
+
+-- ex9
+select c.nome_curso, COUNT(a.ra_aluno) as total_alunos
+from Cursos c
+LEFT JOIN Alunos a ON c.cod_curso = a.cod_curso
+GROUP BY c.nome_curso
+ORDER BY total_alunos DESC
+
+-- ex10
+select
+t.sala,
+t.ano,
+t.semestre,
+t.periodo,
+p.nome_professor,
+p.sobrenome_professor,
+d.nome_disciplina
+from Turma t
+JOIN Professor p ON t.cod_professor = p.cod_professor
+JOIN Disciplinas d ON t.cod_disciplina = d.cod_disciplina
+ORDER BY t.ano, t.semestre, t.cod_turma
+GO
+
+-- ex11
+SELECT
+Professor.nome_professor,
+Turma.cod_turma,
+Turma.cod_professor,
+Disciplinas.nome_disciplina
+FROM Professor
+JOIN Turma ON Professor.cod_professor = Turma.cod_professor
+JOIN Disciplinas ON Turma.cod_disciplina = Disciplinas.cod_disciplina
+GO
+
+-- ex12
+SELECT
+Professor.nome_professor,
+Departamentos.nome_departamento,
+Professor.cod_departamento,
+Departamentos.cod_departamento
+FROM Professor
+JOIN Departamentos ON Professor.cod_departamento = Departamentos.cod_departamento
+GO
+
+-- CHECK Constraints
+-- 1
+ALTER TABLE Alunos
+ADD genero varchar(255)
+
+ALTER TABLE Professor
+ADD genero varchar(255)
+
+ALTER TABLE Alunos
+ADD CONSTRAINT chk_genero_aluno CHECK (genero IN ('Masculino','Feminino','Outro'))
+
+ALTER TABLE Professor
+ADD CONSTRAINT chk_genero_professor CHECK (genero IN ('Masculino','Feminino','Outro'))
+
+-- 2
+ALTER TABLE Alunos
+ADD status_aluno varchar(255)
+
+ALTER TABLE Alunos
+ADD CONSTRAINT chk_status_aluno CHECK (status_aluno in ('Ativo','Formado','Trancado','Cancelado'))
+
+-- 3
+ALTER TABLE Professor
+ADD status_professor varchar(255)
+
+ALTER TABLE Professor
+ADD CONSTRAINT chk_status_professor CHECK (status_professor in ('Ativo','Inativo','Licenciado'))
+
+-- 4
+ALTER TABLE Professor
+ADD CONSTRAINT chk_tipo_vinculo CHECK (tipo_vinculo IN ('Efetivo','Substituto','Temporário'))
