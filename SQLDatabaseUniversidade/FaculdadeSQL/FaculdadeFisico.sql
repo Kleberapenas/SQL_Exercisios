@@ -177,6 +177,7 @@ CREATE TABLE Curso_Disciplina (
 )
 go
 
+
 CREATE TABLE Professor_Disciplina (
 	cod_professor INT NOT NULL,
 	cod_disciplina INT NOT NULL,
@@ -340,6 +341,7 @@ FROM Professor_Disciplina pd
 JOIN Professor p ON pd.cod_professor = p.cod_professor
 JOIN Disciplinas d ON pd.cod_disciplina = d.cod_disciplina
 WHERE d.cod_disciplina = 1;
+go
 
 --3) Alunos matriculados em uma turma específica.
 
@@ -355,6 +357,7 @@ FROM Matricula m
 JOIN Alunos a ON m.ra_aluno = a.ra_aluno
 JOIN Turma t ON m.cod_turma = t.cod_turma
 WHERE t.cod_turma = 2;
+go
 
 --4) Disciplinas obrigatórias de um curso.
 
@@ -369,6 +372,7 @@ JOIN Cursos c ON cd.cod_curso = c.cod_curso
 JOIN Disciplinas d ON cd.cod_disciplina = d.cod_disciplina
 WHERE c.nome_curso = 'Engenharia de Computação'
   AND cd.tipo_disciplina = 'Obrigatória';
+ go
 
 --5) Endereço completo de um aluno.
 
@@ -385,6 +389,7 @@ SELECT
 FROM Alunos a
 JOIN Endereco e ON a.cod_endereco = e.cod_endereco
 WHERE a.ra_aluno = 1005;
+go
 
 --6) Disciplinas que possuem pré-requisitos.
 
@@ -397,7 +402,7 @@ FROM Disciplina_PreRequisito pr
 JOIN Disciplinas d ON pr.cod_disciplina = d.cod_disciplina
 JOIN Disciplinas dp ON pr.cod_pre_requisito = dp.cod_disciplina
 ORDER BY d.cod_disciplina;
-
+go
 
 --7) Alunos e seus respectivos cursos
 
@@ -411,7 +416,7 @@ SELECT
 FROM Alunos a
 JOIN Cursos c ON a.cod_curso = c.cod_curso
 ORDER BY a.ra_aluno;
-
+go
 
 -- ex9
 select c.nome_curso, COUNT(a.ra_aluno) as total_alunos
@@ -419,6 +424,7 @@ from Cursos c
 LEFT JOIN Alunos a ON c.cod_curso = a.cod_curso
 GROUP BY c.nome_curso
 ORDER BY total_alunos DESC
+go
 
 -- ex10
 select
@@ -487,3 +493,27 @@ ADD CONSTRAINT chk_status_professor CHECK (status_professor in ('Ativo','Inativo
 -- 4
 ALTER TABLE Professor
 ADD CONSTRAINT chk_tipo_vinculo CHECK (tipo_vinculo IN ('Efetivo','Substituto','Temporário'))
+go
+
+-- 5
+ALTER TABLE Curso_Disciplina
+ADD tipo_disciplina VARCHAR(255)
+
+ALTER TABLE Curso_Disciplina
+ADD CONSTRAINT chk_tipo_disciplina CHECK (tipo_disciplina IN ('Obrigatoria','Optativa'))
+go
+
+-- 6
+ALTER TABLE Matricula
+ADD CONSTRAINT chk_status_matricula CHECK (status_matricula IN ('Ativa','Cancelar','Trancada'))
+
+-- 7
+ALTER TABLE Curso
+ADD CONSTRAINT chk_turno_curso CHECK (turno_curso IN ('Matutino', 'Vespertino','Noturno','Integral'))
+go
+
+-- 8
+ALTER TABLE Cursos
+ADD CONSTRAINT chk_modalidade_curso CHECK (modalidade_curso IN ('Presencial','EAD'))
+go
+
